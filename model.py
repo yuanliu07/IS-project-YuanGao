@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .Transformer import TransformerModel
-from .KTransformer import KTransformer
 
 class base_model(nn.Module):
     def __init__(
