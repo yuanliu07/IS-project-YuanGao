@@ -1,0 +1,12 @@
+numpy==1.23.0
+pandas==1.4.3
+tqdm==4.64.0
+transformers==4.20.1
+tokenizers==0.12.1
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+scikit-learn==1.5.2
+regex==2024.7.24
+sentencepiece==0.2.0
+wandb==0.19.9
