@@ -5,7 +5,7 @@
 
 This repository implements a span‑based ASTE framework built upon **BERT-base**, as described in the paper *“Span‑Based Aspect‑based Sentiment Triplet Extraction with BERT”* (Yuan Gao, 2025).  
 The model enumerates candidate spans, constructs span representations (boundary + internal features), and classifies them in an end‑to‑end manner to extract (aspect, opinion, sentiment) triplets from text.
-
+The pepar:https://www.overleaf.com/read/xthgqmpnkzpr#10bac8
 ---
 ## 1. Requirements
 
