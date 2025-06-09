@@ -18,12 +18,9 @@ class base_model(nn.Module):
         super().__init__()
 
         # Encoder
-        if model_name == "TransformerModel":
-            self.transformer = TransformerModel(class_n, pretrained_model_path)
-            self.dense = nn.Linear(self.transformer.model.config.hidden_size, hidden_dim)
-        elif model_name == "KTransformer":
-            self.transformer = KTransformer(hidden_dim, pretrained_model_path)
-            self.dense = nn.Linear(self.transformer.hidden_size, hidden_dim)
+
+        self.transformer = TransformerModel(class_n, pretrained_model_path)
+        self.dense = nn.Linear(self.transformer.model.config.hidden_size, hidden_dim)
 
         self.span_average = span_average
         self.classifier = nn.Linear(hidden_dim * 3, class_n)  # 修改输入维度
@@ -78,9 +75,8 @@ class base_model(nn.Module):
         outputs = {'logits': logits}
 
         if 'golden_label' in inputs:
-            label_smoothing_loss = LabelSmoothingLoss(smoothing=0.1)(logits, inputs['golden_label'], candidate_tag_mask)
             focal_loss = FocalLoss()(logits, inputs['golden_label'], weight, candidate_tag_mask)
-            outputs['loss'] = focal_loss + 0.3 * label_smoothing_loss
+            outputs['loss'] = focal_loss 
         #new
 
         return outputs
@@ -141,37 +137,3 @@ class FocalLoss(nn.Module):
         else:
             return focal_loss.mean()
         
-        
-class LabelSmoothingLoss(nn.Module):
-    def __init__(self, smoothing=0.1):
-        super(LabelSmoothingLoss, self).__init__()
-        self.smoothing = smoothing
-        self.confidence = 1.0 - smoothing
-
-    def forward(self, logits, target, mask=None):
-        """
-        logits: [B, H, W, C]
-        target: [B, H, W]
-        mask:   [B, H, W]
-        """
-        B, H, W, C = logits.size()
-
-        # reshape
-        logits = logits.view(-1, C)  # [B*H*W, C]
-        target = target.view(-1)     # [B*H*W]
-
-        # label smoothing dist
-        true_dist = torch.zeros_like(logits)
-        true_dist.fill_(self.smoothing / (C - 1))
-        true_dist.scatter_(1, target.unsqueeze(1), self.confidence)  # [B*H*W, C]
-
-        # ➡ loss计算
-        log_prob = F.log_softmax(logits, dim=-1)
-        loss = -(true_dist * log_prob).sum(dim=-1)  # [B*H*W]
-
-        if mask is not None:
-            mask = mask.view(-1).float()
-            loss = loss * mask
-            return loss.sum() / mask.sum()
-        else:
-            return loss.mean()
